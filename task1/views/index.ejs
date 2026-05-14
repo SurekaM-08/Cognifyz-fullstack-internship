@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title><%= title %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    }
+
+    .card h1 {
+      text-align: center;
+      color: #4a00e0;
+      margin-bottom: 8px;
+      font-size: 1.8rem;
+    }
+
+    .card p.subtitle {
+      text-align: center;
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      color: #555;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-bottom: 20px;
+      transition: border-color 0.3s;
+      outline: none;
+    }
+
+    input:focus, select:focus {
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.3s;
+    }
+
+    button:hover { opacity: 0.9; }
+
+    .view-link {
+      display: block;
+      text-align: center;
+      margin-top: 18px;
+      color: #667eea;
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+
+    .view-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🎓 Student Registration</h1>
+    <p class="subtitle">Fill in your details to register</p>
+
+    <form action="/register" method="POST">
+
+      <label for="name">Full Name</label>
+      <input
+        type="text"
+        id="name"
+        name="name"
+        placeholder="e.g. Arun Kumar"
+        required
+      />
+
+      <label for="email">Email Address</label>
+      <input
+        type="email"
+        id="email"
+        name="email"
+        placeholder="e.g. arun@email.com"
+        required
+      />
+
+      <label for="age">Age</label>
+      <input
+        type="number"
+        id="age"
+        name="age"
+        placeholder="e.g. 20"
+        min="15"
+        max="60"
+        required
+      />
+
+      <label for="course">Course</label>
+      <select id="course" name="course" required>
+        <option value="" disabled selected>Select your course</option>
+        <option value="B.Tech - Computer Science">B.Tech - Computer Science</option>
+        <option value="B.Tech - Information Technology">B.Tech - Information Technology</option>
+        <option value="B.Sc - Data Science">B.Sc - Data Science</option>
+        <option value="MBA - Technology Management">MBA - Technology Management</option>
+        <option value="MCA">MCA</option>
+      </select>
+
+      <button type="submit">Register Now →</button>
+    </form>
+
+    <a class="view-link" href="/students">View All Registered Students</a>
+  </div>
+</body>
+</html>

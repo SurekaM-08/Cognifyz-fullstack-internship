@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registration Successful</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+      text-align: center;
+    }
+
+    .icon { font-size: 3.5rem; margin-bottom: 15px; }
+
+    h1 { color: #11998e; margin-bottom: 8px; }
+
+    p.sub { color: #888; margin-bottom: 30px; font-size: 0.95rem; }
+
+    .info-box {
+      background: #f4fffe;
+      border: 1px solid #d0f0ec;
+      border-radius: 10px;
+      padding: 20px;
+      text-align: left;
+      margin-bottom: 25px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e8f8f5;
+      font-size: 0.95rem;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-row span:first-child { color: #888; font-weight: 600; }
+    .info-row span:last-child  { color: #333; font-weight: 500; }
+
+    .btn {
+      display: inline-block;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #11998e, #38ef7d);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      margin: 5px;
+      transition: opacity 0.3s;
+    }
+
+    .btn:hover { opacity: 0.9; }
+
+    .btn.outline {
+      background: transparent;
+      border: 2px solid #11998e;
+      color: #11998e;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">🎉</div>
+    <h1>Registration Successful!</h1>
+    <p class="sub">Welcome aboard, <%= student.name %>!</p>
+
+    <div class="info-box">
+      <div class="info-row">
+        <span>Student ID</span>
+        <span>#<%= student.id.toString().padStart(4, '0') %></span>
+      </div>
+      <div class="info-row">
+        <span>Name</span>
+        <span><%= student.name %></span>
+      </div>
+      <div class="info-row">
+        <span>Email</span>
+        <span><%= student.email %></span>
+      </div>
+      <div class="info-row">
+        <span>Age</span>
+        <span><%= student.age %> years</span>
+      </div>
+      <div class="info-row">
+        <span>Course</span>
+        <span><%= student.course %></span>
+      </div>
+      <div class="info-row">
+        <span>Registered At</span>
+        <span><%= student.registeredAt %></span>
+      </div>
+    </div>
+
+    <a class="btn outline" href="/">Register Another</a>
+    <a class="btn" href="/students">View All Students</a>
+  </div>
+</body>
+</html>
