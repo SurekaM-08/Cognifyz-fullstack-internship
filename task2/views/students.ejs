@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>All Students</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; min-height: 100vh; padding: 30px 20px; }
+    h1 { text-align: center; color: #4a00e0; margin-bottom: 8px; font-size: 1.8rem; }
+    .sub { text-align: center; color: #888; margin-bottom: 30px; }
+    .table-wrap {
+      max-width: 960px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 14px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      overflow: auto;
+    }
+    table { width: 100%; border-collapse: collapse; }
+    thead { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    th, td { padding: 13px 15px; text-align: left; font-size: 0.88rem; }
+    tbody tr:nth-child(even) { background: #f9f9ff; }
+    tbody tr:hover { background: #f0eeff; }
+    td { color: #444; }
+    .empty { text-align: center; padding: 50px; color: #aaa; }
+    .badge { background: #ede9fe; color: #4a00e0; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+    .back-btn {
+      display: block;
+      width: fit-content;
+      margin: 25px auto 0;
+      padding: 12px 28px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <h1>📋 Registered Students</h1>
+  <p class="sub">Total: <strong><%= students.length %></strong> student(s)</p>
+
+  <div class="table-wrap">
+    <% if (students.length === 0) { %>
+      <div class="empty">No students registered yet. Be the first! 🎓</div>
+    <% } else { %>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Email</th><th>Phone</th>
+            <th>Age</th><th>Gender</th><th>Course</th><th>Registered At</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% students.forEach(s => { %>
+            <tr>
+              <td><span class="badge">#<%= s.id.toString().padStart(4,'0') %></span></td>
+              <td><strong><%= s.name %></strong></td>
+              <td><%= s.email %></td>
+              <td><%= s.phone %></td>
+              <td><%= s.age %></td>
+              <td><%= s.gender %></td>
+              <td><%= s.course %></td>
+              <td><%= s.registeredAt %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    <% } %>
+  </div>
+
+  <a class="back-btn" href="/">+ Register New Student</a>
+</body>
+</html>
