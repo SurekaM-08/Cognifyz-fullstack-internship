@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cognifyz | Student Registration</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root { --primary:#667eea; --secondary:#764ba2; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; }
+
+    /* NAVBAR */
+    .navbar { background:linear-gradient(135deg,var(--primary),var(--secondary)) !important; box-shadow:0 4px 15px rgba(102,126,234,0.4); }
+    .navbar-brand,.nav-link { color:white !important; font-weight:600; }
+
+    /* HERO */
+    .hero { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:60px 0 80px; position:relative; overflow:hidden; text-align:center; }
+    .hero::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:55px; background:#f0f2f5; clip-path:ellipse(55% 100% at 50% 100%); }
+    .hero h1 { font-size:2.5rem; font-weight:800; animation:fadeInDown 0.7s ease; }
+    .hero p  { opacity:0.9; animation:fadeInUp 0.7s ease 0.2s both; }
+    .hero-badge { display:inline-block; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:50px; padding:5px 16px; font-size:0.83rem; margin-bottom:14px; }
+
+    /* STATS */
+    .stats-section { margin-top:-38px; position:relative; z-index:10; }
+    .stat-card { background:white; border-radius:14px; padding:20px; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.09); transition:transform 0.3s; }
+    .stat-card:hover { transform:translateY(-5px); }
+    .stat-card h3 { font-size:1.7rem; font-weight:700; color:var(--primary); }
+    .stat-card p  { color:#888; font-size:0.87rem; margin:0; }
+
+    /* FORM */
+    .form-section { padding:45px 0; }
+    .form-card { background:white; border-radius:18px; box-shadow:0 10px 40px rgba(0,0,0,0.1); overflow:hidden; }
+    .form-header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:26px 32px; }
+    .form-header h2 { font-weight:700; margin:0; }
+    .form-header p  { opacity:0.85; margin:4px 0 0; font-size:0.9rem; }
+    .form-body { padding:32px; }
+
+    .form-label { font-weight:600; color:#555; font-size:0.87rem; margin-bottom:4px; }
+    .form-control,.form-select { border:2px solid #e8e8e8; border-radius:10px; padding:11px 14px; font-size:0.93rem; transition:border-color 0.3s,box-shadow 0.3s; }
+    .form-control:focus,.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(102,126,234,0.15); }
+
+    .field-err { color:#dc3545; font-size:0.79rem; margin-top:3px; display:none; }
+
+    /* GENDER BUTTONS */
+    .gender-group { display:flex; gap:12px; flex-wrap:wrap; }
+    .gender-btn input { display:none; }
+    .gender-btn label { display:flex; align-items:center; gap:7px; padding:9px 18px; border:2px solid #e8e8e8; border-radius:10px; cursor:pointer; font-size:0.9rem; font-weight:500; transition:all 0.25s; }
+    .gender-btn input:checked + label { border-color:var(--primary); background:rgba(102,126,234,0.08); color:var(--primary); }
+
+    /* PASSWORD STRENGTH */
+    .password-wrap { position:relative; }
+    .toggle-pw { position:absolute; right:12px; top:50%; transform:translateY(-50%); cursor:pointer; color:#888; background:none; border:none; font-size:1.1rem; }
+
+    .strength-bar-wrap { display:flex; gap:5px; margin-top:8px; }
+    .strength-bar { height:5px; border-radius:3px; flex:1; background:#e0e0e0; transition:background 0.3s; }
+
+    .strength-label { font-size:0.8rem; margin-top:5px; font-weight:600; }
+
+    .pw-rules { margin-top:10px; display:flex; flex-wrap:wrap; gap:6px; }
+    .pw-rule { font-size:0.78rem; padding:3px 10px; border-radius:20px; background:#f0f0f0; color:#888; transition:all 0.3s; display:flex; align-items:center; gap:4px; }
+    .pw-rule.ok { background:#dcfce7; color:#16a34a; }
+
+    /* LIVE PREVIEW */
+    .preview-section { margin-top:25px; border:2px dashed #e0e0e0; border-radius:12px; padding:18px; transition:all 0.3s; }
+    .preview-section.active { border-color:var(--primary); background:rgba(102,126,234,0.03); }
+    .preview-section h6 { color:var(--primary); font-weight:700; margin-bottom:12px; font-size:0.88rem; }
+    .preview-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .preview-item { font-size:0.82rem; }
+    .preview-item .plabel { color:#aaa; font-size:0.75rem; }
+    .preview-item .pval   { color:#333; font-weight:600; }
+    .preview-item .pval.empty { color:#ccc; font-style:italic; }
+
+    /* STEP INDICATOR */
+    .steps { display:flex; justify-content:center; gap:0; margin-bottom:28px; }
+    .step { display:flex; align-items:center; }
+    .step-circle { width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:0.82rem; font-weight:700; border:2px solid #e0e0e0; color:#aaa; background:white; transition:all 0.3s; }
+    .step-circle.active { border-color:var(--primary); color:var(--primary); }
+    .step-circle.done   { border-color:var(--primary); background:var(--primary); color:white; }
+    .step-line { width:40px; height:2px; background:#e0e0e0; transition:background 0.3s; }
+    .step-line.done { background:var(--primary); }
+    .step-label { font-size:0.72rem; color:#aaa; text-align:center; margin-top:4px; }
+    .step.active .step-label,.step.done .step-label { color:var(--primary); font-weight:600; }
+
+    /* SERVER ERRORS */
+    .server-errors { background:#fff0f0; border:1px solid #ffcccc; border-radius:10px; padding:14px 18px; margin-bottom:20px; }
+    .server-errors p { color:#cc0000; font-size:0.85rem; margin:3px 0; }
+
+    /* SUBMIT BTN */
+    .btn-submit { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; border-radius:10px; padding:14px; font-size:1rem; font-weight:600; width:100%; transition:opacity 0.3s,transform 0.2s; margin-top:8px; }
+    .btn-submit:hover { opacity:0.92; transform:translateY(-1px); color:white; }
+
+    /* FEATURES */
+    .features { padding:55px 0; background:white; }
+    .feature-card { text-align:center; padding:28px 18px; border-radius:14px; transition:transform 0.3s,box-shadow 0.3s; }
+    .feature-card:hover { transform:translateY(-6px); box-shadow:0 12px 30px rgba(0,0,0,0.1); }
+    .feature-icon { width:62px; height:62px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:1.7rem; margin:0 auto 16px; }
+    .feature-card h5 { font-weight:700; color:#333; margin-bottom:7px; }
+    .feature-card p  { color:#888; font-size:0.88rem; }
+
+    footer { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; text-align:center; padding:22px; font-size:0.88rem; }
+
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-25px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(25px)}  to{opacity:1;transform:translateY(0)} }
+
+    @media(max-width:576px) {
+      .hero h1 { font-size:1.8rem; }
+      .form-body { padding:20px; }
+      .preview-grid { grid-template-columns:1fr; }
+      .step-line { width:22px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="/"><i class="bi bi-mortarboard-fill me-2"></i>Cognifyz Academy</a>
+    <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span style="color:white;font-size:1.4rem"><i class="bi bi-list"></i></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="/"><i class="bi bi-house me-1"></i>Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="/students"><i class="bi bi-people me-1"></i>Students</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><i class="bi bi-stars me-1"></i>Task 4 — Complex Validation & Dynamic DOM</div>
+    <h1>🎓 Student Registration Portal</h1>
+    <p>Password strength meter · Live form preview · Dynamic DOM updates</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">👨‍🎓</div><h3><%= students.length %></h3><p>Registered</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">🔐</div><h3>Strong</h3><p>Password Req.</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">⚡</div><h3>Live</h3><p>DOM Preview</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">📱</div><h3>100%</h3><p>Responsive</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FORM -->
+<section class="form-section">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-9">
+        <div class="form-card">
+          <div class="form-header">
+            <h2><i class="bi bi-person-plus-fill me-2"></i>Register Now</h2>
+            <p>Complete all steps to create your student account</p>
+          </div>
+          <div class="form-body">
+
+            <!-- Step Indicator -->
+            <div class="steps">
+              <div class="step active" id="step1">
+                <div>
+                  <div class="step-circle active" id="sc1">1</div>
+                  <div class="step-label">Personal</div>
+                </div>
+              </div>
+              <div class="step-line" id="sl1"></div>
+              <div class="step" id="step2">
+                <div>
+                  <div class="step-circle" id="sc2">2</div>
+                  <div class="step-label">Academic</div>
+                </div>
+              </div>
+              <div class="step-line" id="sl2"></div>
+              <div class="step" id="step3">
+                <div>
+                  <div class="step-circle" id="sc3">3</div>
+                  <div class="step-label">Security</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Server errors -->
+            <% if (errors && errors.length > 0) { %>
+              <div class="server-errors">
+                <% errors.forEach(e => { %><p><i class="bi bi-exclamation-triangle-fill me-1"></i><%= e %></p><% }) %>
+              </div>
+            <% } %>
+
+            <form id="regForm" action="/register" method="POST" novalidate>
+              <div class="row g-3">
+
+                <!-- ── PERSONAL INFO ── -->
+                <div class="col-12"><h6 class="text-muted fw-bold" style="font-size:0.8rem;letter-spacing:1px">PERSONAL INFORMATION</h6><hr class="mt-1 mb-2"/></div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Full Name</label>
+                  <input type="text" class="form-control" id="name" name="name" placeholder="e.g. Arun Kumar" value="<%= old&&old.name?old.name:'' %>"/>
+                  <div class="field-err" id="nameErr">Name must be at least 3 letters only.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Email Address</label>
+                  <input type="email" class="form-control" id="email" name="email" placeholder="e.g. arun@email.com" value="<%= old&&old.email?old.email:'' %>"/>
+                  <div class="field-err" id="emailErr">Enter a valid email address.</div>
+                </div>
+
+                <div class="col-6 col-md-4">
+                  <label class="form-label">Phone Number</label>
+                  <input type="text" class="form-control" id="phone" name="phone" placeholder="10 digits" maxlength="10" value="<%= old&&old.phone?old.phone:'' %>"/>
+                  <div class="field-err" id="phoneErr">Enter valid 10-digit number.</div>
+                </div>
+
+                <div class="col-6 col-md-4">
+                  <label class="form-label">Age</label>
+                  <input type="number" class="form-control" id="age" name="age" placeholder="15–60" min="15" max="60" value="<%= old&&old.age?old.age:'' %>"/>
+                  <div class="field-err" id="ageErr">Age must be between 15–60.</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Date of Birth</label>
+                  <input type="date" class="form-control" id="dob" name="dob" value="<%= old&&old.dob?old.dob:'' %>"/>
+                  <div class="field-err" id="dobErr">Please select your DOB.</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label">Gender</label>
+                  <div class="gender-group">
+                    <div class="gender-btn"><input type="radio" id="male" name="gender" value="Male" <%= old&&old.gender==='Male'?'checked':'' %>><label for="male"><i class="bi bi-person"></i> Male</label></div>
+                    <div class="gender-btn"><input type="radio" id="female" name="gender" value="Female" <%= old&&old.gender==='Female'?'checked':'' %>><label for="female"><i class="bi bi-person"></i> Female</label></div>
+                    <div class="gender-btn"><input type="radio" id="other" name="gender" value="Other" <%= old&&old.gender==='Other'?'checked':'' %>><label for="other"><i class="bi bi-person"></i> Other</label></div>
+                  </div>
+                  <div class="field-err" id="genderErr">Please select a gender.</div>
+                </div>
+
+                <!-- ── ACADEMIC INFO ── -->
+                <div class="col-12 mt-2"><h6 class="text-muted fw-bold" style="font-size:0.8rem;letter-spacing:1px">ACADEMIC INFORMATION</h6><hr class="mt-1 mb-2"/></div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Course</label>
+                  <select class="form-select" id="course" name="course">
+                    <option value="" disabled <%= !old||!old.course?'selected':'' %>>Select your course</option>
+                    <option value="B.Tech - Computer Science"       <%= old&&old.course==='B.Tech - Computer Science'?'selected':'' %>>B.Tech - Computer Science</option>
+                    <option value="B.Tech - Information Technology" <%= old&&old.course==='B.Tech - Information Technology'?'selected':'' %>>B.Tech - IT</option>
+                    <option value="B.Sc - Data Science"             <%= old&&old.course==='B.Sc - Data Science'?'selected':'' %>>B.Sc - Data Science</option>
+                    <option value="MBA - Technology Management"     <%= old&&old.course==='MBA - Technology Management'?'selected':'' %>>MBA - Tech Mgmt</option>
+                    <option value="MCA"                             <%= old&&old.course==='MCA'?'selected':'' %>>MCA</option>
+                  </select>
+                  <div class="field-err" id="courseErr">Please select a course.</div>
+                </div>
+
+                <!-- ── SECURITY ── -->
+                <div class="col-12 mt-2"><h6 class="text-muted fw-bold" style="font-size:0.8rem;letter-spacing:1px">ACCOUNT SECURITY</h6><hr class="mt-1 mb-2"/></div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Password</label>
+                  <div class="password-wrap">
+                    <input type="password" class="form-control" id="password" name="password" placeholder="Create a strong password"/>
+                    <button type="button" class="toggle-pw" onclick="togglePw('password','eyeIcon1')"><i class="bi bi-eye" id="eyeIcon1"></i></button>
+                  </div>
+                  <!-- Strength bars -->
+                  <div class="strength-bar-wrap mt-2">
+                    <div class="strength-bar" id="bar1"></div>
+                    <div class="strength-bar" id="bar2"></div>
+                    <div class="strength-bar" id="bar3"></div>
+                    <div class="strength-bar" id="bar4"></div>
+                  </div>
+                  <div class="strength-label" id="strengthLabel" style="color:#aaa">Enter a password</div>
+                  <!-- Rules checklist -->
+                  <div class="pw-rules">
+                    <span class="pw-rule" id="rule-len"><i class="bi bi-x-circle"></i> 8+ chars</span>
+                    <span class="pw-rule" id="rule-upper"><i class="bi bi-x-circle"></i> Uppercase</span>
+                    <span class="pw-rule" id="rule-num"><i class="bi bi-x-circle"></i> Number</span>
+                    <span class="pw-rule" id="rule-special"><i class="bi bi-x-circle"></i> Special (!@#$)</span>
+                  </div>
+                  <div class="field-err" id="pwErr">Password does not meet requirements.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Confirm Password</label>
+                  <div class="password-wrap">
+                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password"/>
+                    <button type="button" class="toggle-pw" onclick="togglePw('confirmPassword','eyeIcon2')"><i class="bi bi-eye" id="eyeIcon2"></i></button>
+                  </div>
+                  <div class="field-err" id="confirmErr">Passwords do not match.</div>
+                </div>
+
+                <!-- LIVE PREVIEW (Dynamic DOM) -->
+                <div class="col-12">
+                  <div class="preview-section" id="previewSection">
+                    <h6><i class="bi bi-eye me-1"></i>Live Registration Preview</h6>
+                    <div class="preview-grid">
+                      <div class="preview-item"><div class="plabel">Name</div><div class="pval empty" id="pName">—</div></div>
+                      <div class="preview-item"><div class="plabel">Email</div><div class="pval empty" id="pEmail">—</div></div>
+                      <div class="preview-item"><div class="plabel">Phone</div><div class="pval empty" id="pPhone">—</div></div>
+                      <div class="preview-item"><div class="plabel">Age</div><div class="pval empty" id="pAge">—</div></div>
+                      <div class="preview-item"><div class="plabel">Gender</div><div class="pval empty" id="pGender">—</div></div>
+                      <div class="preview-item"><div class="plabel">Course</div><div class="pval empty" id="pCourse">—</div></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12">
+                  <button type="submit" class="btn btn-submit">
+                    <i class="bi bi-send-fill me-2"></i>Complete Registration
+                  </button>
+                </div>
+
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features">
+  <div class="container">
+    <h2 class="text-center fw-bold mb-2" style="color:#4a00e0">Why Cognifyz Academy?</h2>
+    <p class="text-center text-muted mb-5">Everything you need to grow as a developer</p>
+    <div class="row g-4">
+      <div class="col-12 col-md-4"><div class="feature-card"><div class="feature-icon" style="background:#ede9fe">🚀</div><h5>Hands-on Projects</h5><p>Build real full stack apps that strengthen your portfolio.</p></div></div>
+      <div class="col-12 col-md-4"><div class="feature-card"><div class="feature-icon" style="background:#dcfce7">🏆</div><h5>Internship Certificate</h5><p>Earn a verified certificate on successful completion.</p></div></div>
+      <div class="col-12 col-md-4"><div class="feature-card"><div class="feature-icon" style="background:#fef9c3">💡</div><h5>Mentorship Support</h5><p>Get guidance from experienced developers throughout.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<footer><p><i class="bi bi-mortarboard-fill me-2"></i>Cognifyz Technologies © 2025 — Task 4: Complex Validation & Dynamic DOM</p></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // ── TOGGLE PASSWORD VISIBILITY ──────────────────────────
+  function togglePw(fieldId, iconId) {
+    const f = document.getElementById(fieldId);
+    const i = document.getElementById(iconId);
+    if (f.type === 'password') { f.type = 'text';     i.className = 'bi bi-eye-slash'; }
+    else                       { f.type = 'password'; i.className = 'bi bi-eye'; }
+  }
+
+  // ── HELPERS ─────────────────────────────────────────────
+  function showErr(id, show) { document.getElementById(id).style.display = show ? 'block' : 'none'; }
+  function mark(el, valid) {
+    el.classList.toggle('is-valid',   valid);
+    el.classList.toggle('is-invalid', !valid);
+  }
+  function setRule(id, ok) {
+    const el = document.getElementById(id);
+    el.className = 'pw-rule' + (ok ? ' ok' : '');
+    el.innerHTML = (ok ? '<i class="bi bi-check-circle"></i> ' : '<i class="bi bi-x-circle"></i> ') + el.textContent.trim();
+  }
+
+  // ── STEP INDICATOR ──────────────────────────────────────
+  function updateSteps(filledFields) {
+    const personal = ['name','email','phone','age','dob'];
+    const academic = ['course'];
+    const security = ['password','confirmPassword'];
+    const pDone = personal.every(f => filledFields.has(f));
+    const aDone = academic.every(f => filledFields.has(f));
+    const sDone = security.every(f => filledFields.has(f));
+
+    document.getElementById('sc1').className = 'step-circle ' + (pDone ? 'done' : 'active');
+    document.getElementById('sl1').className = 'step-line '   + (pDone ? 'done' : '');
+    document.getElementById('sc2').className = 'step-circle ' + (aDone ? 'done' : pDone ? 'active' : '');
+    document.getElementById('sl2').className = 'step-line '   + (aDone ? 'done' : '');
+    document.getElementById('sc3').className = 'step-circle ' + (sDone ? 'done' : aDone ? 'active' : '');
+  }
+
+  const filled = new Set();
+
+  // ── LIVE PREVIEW (Dynamic DOM) ───────────────────────────
+  function updatePreview(field, value) {
+    const map = { name:'pName', email:'pEmail', phone:'pPhone', age:'pAge', course:'pCourse' };
+    if (map[field]) {
+      const el = document.getElementById(map[field]);
+      if (value) { el.textContent = value; el.className = 'pval'; }
+      else        { el.textContent = '—';   el.className = 'pval empty'; }
+    }
+    const hasAny = ['name','email','phone','age','course'].some(f => {
+      const el = document.getElementById(f);
+      return el && el.value.trim();
+    });
+    document.getElementById('previewSection').className = 'preview-section' + (hasAny ? ' active' : '');
+  }
+
+  // ── FIELD VALIDATIONS ────────────────────────────────────
+  const nameEl    = document.getElementById('name');
+  const emailEl   = document.getElementById('email');
+  const phoneEl   = document.getElementById('phone');
+  const ageEl     = document.getElementById('age');
+  const dobEl     = document.getElementById('dob');
+  const courseEl  = document.getElementById('course');
+  const pwEl      = document.getElementById('password');
+  const cpwEl     = document.getElementById('confirmPassword');
+
+  nameEl.addEventListener('input', () => {
+    const ok = /^[a-zA-Z\s]{3,}$/.test(nameEl.value.trim());
+    mark(nameEl, ok); showErr('nameErr', !ok);
+    updatePreview('name', nameEl.value.trim());
+    ok ? filled.add('name') : filled.delete('name');
+    updateSteps(filled);
+  });
+
+  emailEl.addEventListener('input', () => {
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value);
+    mark(emailEl, ok); showErr('emailErr', !ok);
+    updatePreview('email', emailEl.value);
+    ok ? filled.add('email') : filled.delete('email');
+    updateSteps(filled);
+  });
+
+  phoneEl.addEventListener('input', () => {
+    phoneEl.value = phoneEl.value.replace(/\D/g,'');
+    const ok = /^\d{10}$/.test(phoneEl.value);
+    mark(phoneEl, ok); showErr('phoneErr', !ok);
+    updatePreview('phone', phoneEl.value);
+    ok ? filled.add('phone') : filled.delete('phone');
+    updateSteps(filled);
+  });
+
+  ageEl.addEventListener('input', () => {
+    const v = parseInt(ageEl.value), ok = v >= 15 && v <= 60;
+    mark(ageEl, ok); showErr('ageErr', !ok);
+    updatePreview('age', ageEl.value + (ageEl.value ? ' yrs' : ''));
+    ok ? filled.add('age') : filled.delete('age');
+    updateSteps(filled);
+  });
+
+  dobEl.addEventListener('change', () => {
+    const ok = dobEl.value !== '';
+    mark(dobEl, ok); showErr('dobErr', !ok);
+    ok ? filled.add('dob') : filled.delete('dob');
+    updateSteps(filled);
+  });
+
+  courseEl.addEventListener('change', () => {
+    const ok = courseEl.value !== '';
+    mark(courseEl, ok); showErr('courseErr', !ok);
+    updatePreview('course', courseEl.options[courseEl.selectedIndex]?.text || '');
+    ok ? filled.add('course') : filled.delete('course');
+    updateSteps(filled);
+  });
+
+  document.querySelectorAll('input[name="gender"]').forEach(r => {
+    r.addEventListener('change', () => {
+      showErr('genderErr', false);
+      document.getElementById('pGender').textContent = r.value;
+      document.getElementById('pGender').className = 'pval';
+      filled.add('gender'); updateSteps(filled);
+    });
+  });
+
+  // ── PASSWORD STRENGTH ────────────────────────────────────
+  pwEl.addEventListener('input', () => {
+    const pw = pwEl.value;
+    const rules = {
+      len:     pw.length >= 8,
+      upper:   /[A-Z]/.test(pw),
+      num:     /[0-9]/.test(pw),
+      special: /[!@#$%^&*]/.test(pw),
+    };
+
+    setRule('rule-len',     rules.len);
+    setRule('rule-upper',   rules.upper);
+    setRule('rule-num',     rules.num);
+    setRule('rule-special', rules.special);
+
+    const score = Object.values(rules).filter(Boolean).length;
+    const colors  = ['','#ef4444','#f97316','#eab308','#22c55e'];
+    const labels  = ['','Weak','Fair','Good','Strong 💪'];
+    const lColors = ['','#ef4444','#f97316','#eab308','#22c55e'];
+
+    for (let i = 1; i <= 4; i++) {
+      document.getElementById('bar'+i).style.background = i <= score ? colors[score] : '#e0e0e0';
+    }
+    const sl = document.getElementById('strengthLabel');
+    sl.textContent = pw.length ? labels[score] : 'Enter a password';
+    sl.style.color = pw.length ? lColors[score] : '#aaa';
+
+    const allOk = Object.values(rules).every(Boolean);
+    mark(pwEl, allOk); showErr('pwErr', !allOk && pw.length > 0);
+    allOk ? filled.add('password') : filled.delete('password');
+    updateSteps(filled);
+
+    // Also recheck confirm
+    if (cpwEl.value) {
+      const match = cpwEl.value === pw;
+      mark(cpwEl, match); showErr('confirmErr', !match);
+    }
+  });
+
+  cpwEl.addEventListener('input', () => {
+    const match = cpwEl.value === pwEl.value && cpwEl.value !== '';
+    mark(cpwEl, match); showErr('confirmErr', !match);
+    match ? filled.add('confirmPassword') : filled.delete('confirmPassword');
+    updateSteps(filled);
+  });
+
+  // ── FINAL SUBMIT VALIDATION ──────────────────────────────
+  document.getElementById('regForm').addEventListener('submit', e => {
+    let valid = true;
+    if (!/^[a-zA-Z\s]{3,}$/.test(nameEl.value.trim()))     { showErr('nameErr',true);   mark(nameEl,false);   valid=false; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) { showErr('emailErr',true);  mark(emailEl,false);  valid=false; }
+    if (!/^\d{10}$/.test(phoneEl.value))                    { showErr('phoneErr',true);  mark(phoneEl,false);  valid=false; }
+    const age=parseInt(ageEl.value);
+    if (!age||age<15||age>60)                               { showErr('ageErr',true);    mark(ageEl,false);    valid=false; }
+    if (!dobEl.value)                                       { showErr('dobErr',true);    mark(dobEl,false);    valid=false; }
+    if (!document.querySelector('input[name="gender"]:checked')) { showErr('genderErr',true); valid=false; }
+    if (!courseEl.value)                                    { showErr('courseErr',true); mark(courseEl,false); valid=false; }
+    const pw=pwEl.value;
+    const pwOk=pw.length>=8&&/[A-Z]/.test(pw)&&/[0-9]/.test(pw)&&/[!@#$%^&*]/.test(pw);
+    if (!pwOk)                                              { showErr('pwErr',true);     mark(pwEl,false);     valid=false; }
+    if (cpwEl.value!==pw||!cpwEl.value)                     { showErr('confirmErr',true);mark(cpwEl,false);    valid=false; }
+    if (!valid) e.preventDefault();
+  });
+</script>
+</body>
+</html>
