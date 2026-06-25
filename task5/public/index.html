@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cognifyz | Task 5 — REST API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root { --primary:#667eea; --secondary:#764ba2; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; }
+
+    /* NAVBAR */
+    .navbar { background:linear-gradient(135deg,var(--primary),var(--secondary)) !important; box-shadow:0 4px 15px rgba(102,126,234,0.4); }
+    .navbar-brand,.nav-link { color:white !important; font-weight:600; }
+
+    /* HERO */
+    .hero { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:55px 0 75px; text-align:center; position:relative; overflow:hidden; }
+    .hero::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:55px; background:#f0f2f5; clip-path:ellipse(55% 100% at 50% 100%); }
+    .hero h1 { font-size:2.4rem; font-weight:800; animation:fadeInDown 0.7s ease; }
+    .hero p  { opacity:0.9; animation:fadeInUp 0.7s ease 0.2s both; }
+    .hero-badge { display:inline-block; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.4); border-radius:50px; padding:5px 16px; font-size:0.82rem; margin-bottom:14px; }
+
+    /* STATS */
+    .stats-section { margin-top:-38px; position:relative; z-index:10; }
+    .stat-card { background:white; border-radius:14px; padding:20px; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,0.09); transition:transform 0.3s; }
+    .stat-card:hover { transform:translateY(-5px); }
+    .stat-card h3 { font-size:1.7rem; font-weight:700; color:var(--primary); }
+    .stat-card p  { color:#888; font-size:0.86rem; margin:0; }
+
+    /* API BADGE */
+    .api-badge { display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:20px; font-size:0.75rem; font-weight:700; }
+    .badge-get    { background:#dcfce7; color:#16a34a; }
+    .badge-post   { background:#dbeafe; color:#2563eb; }
+    .badge-put    { background:#fef9c3; color:#ca8a04; }
+    .badge-delete { background:#fee2e2; color:#dc2626; }
+
+    /* MAIN LAYOUT */
+    .main-section { padding:45px 0 60px; }
+
+    /* FORM CARD */
+    .form-card { background:white; border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,0.09); overflow:hidden; position:sticky; top:20px; }
+    .form-card-header { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:22px 26px; }
+    .form-card-header h5 { font-weight:700; margin:0; }
+    .form-card-header p  { opacity:0.85; margin:3px 0 0; font-size:0.85rem; }
+    .form-card-body { padding:24px; }
+
+    .form-label { font-weight:600; color:#555; font-size:0.85rem; margin-bottom:4px; }
+    .form-control,.form-select { border:2px solid #e8e8e8; border-radius:9px; padding:10px 13px; font-size:0.9rem; transition:border-color 0.3s; }
+    .form-control:focus,.form-select:focus { border-color:var(--primary); box-shadow:0 0 0 3px rgba(102,126,234,0.12); }
+
+    .btn-add    { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; border-radius:9px; padding:11px; font-weight:600; width:100%; transition:opacity 0.3s; }
+    .btn-add:hover { opacity:0.9; color:white; }
+    .btn-cancel { background:#f0f0f0; color:#555; border:none; border-radius:9px; padding:11px; font-weight:600; width:100%; transition:background 0.3s; }
+    .btn-cancel:hover { background:#e0e0e0; }
+
+    /* STUDENTS LIST CARD */
+    .list-card { background:white; border-radius:16px; box-shadow:0 8px 30px rgba(0,0,0,0.09); overflow:hidden; }
+    .list-card-header { padding:20px 24px; border-bottom:1px solid #f0f0f0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; }
+    .list-card-header h5 { font-weight:700; color:#333; margin:0; }
+
+    .search-input { border:2px solid #e8e8e8; border-radius:9px; padding:8px 14px; font-size:0.88rem; outline:none; transition:border-color 0.3s; width:220px; }
+    .search-input:focus { border-color:var(--primary); }
+
+    /* STUDENT CARDS */
+    .students-grid { padding:20px; display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:15px; }
+    .student-card { border:2px solid #f0f0f0; border-radius:12px; padding:18px; transition:all 0.3s; animation:fadeInUp 0.4s ease; }
+    .student-card:hover { border-color:var(--primary); box-shadow:0 5px 20px rgba(102,126,234,0.15); transform:translateY(-3px); }
+    .student-card .s-name { font-weight:700; color:#333; font-size:1rem; margin-bottom:4px; }
+    .student-card .s-course { font-size:0.8rem; color:var(--primary); font-weight:600; background:#ede9fe; padding:2px 10px; border-radius:20px; display:inline-block; margin-bottom:10px; }
+    .student-card .s-info { font-size:0.83rem; color:#666; margin:3px 0; }
+    .student-card .s-actions { display:flex; gap:8px; margin-top:12px; }
+    .btn-edit   { flex:1; background:#fef9c3; color:#ca8a04; border:none; border-radius:8px; padding:7px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-edit:hover { background:#fde68a; }
+    .btn-delete { flex:1; background:#fee2e2; color:#dc2626; border:none; border-radius:8px; padding:7px; font-size:0.82rem; font-weight:600; cursor:pointer; transition:background 0.2s; }
+    .btn-delete:hover { background:#fca5a5; }
+    .badge-id { background:#ede9fe; color:#4a00e0; padding:2px 10px; border-radius:20px; font-weight:700; font-size:0.75rem; }
+
+    /* TOAST */
+    .toast-container { position:fixed; top:20px; right:20px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .toast-msg { padding:14px 20px; border-radius:10px; color:white; font-size:0.88rem; font-weight:600; box-shadow:0 5px 20px rgba(0,0,0,0.15); animation:slideIn 0.3s ease; min-width:260px; display:flex; align-items:center; gap:10px; }
+    .toast-success { background:linear-gradient(135deg,#11998e,#38ef7d); }
+    .toast-error   { background:linear-gradient(135deg,#ef4444,#dc2626); }
+    .toast-info    { background:linear-gradient(135deg,var(--primary),var(--secondary)); }
+
+    /* API LOG */
+    .api-log { background:#1e1e2e; border-radius:12px; padding:16px; margin-top:20px; max-height:200px; overflow-y:auto; }
+    .api-log h6 { color:#a0a0b0; font-size:0.78rem; margin-bottom:10px; letter-spacing:1px; }
+    .log-entry { font-size:0.78rem; font-family:monospace; margin:4px 0; }
+    .log-get    { color:#4ade80; }
+    .log-post   { color:#60a5fa; }
+    .log-put    { color:#fbbf24; }
+    .log-delete { color:#f87171; }
+    .log-error  { color:#f87171; }
+
+    /* EMPTY */
+    .empty-state { text-align:center; padding:50px 20px; color:#aaa; }
+    .empty-state i { font-size:2.5rem; display:block; margin-bottom:12px; }
+
+    @keyframes fadeInDown { from{opacity:0;transform:translateY(-25px)} to{opacity:1;transform:translateY(0)} }
+    @keyframes fadeInUp   { from{opacity:0;transform:translateY(25px)}  to{opacity:1;transform:translateY(0)} }
+    @keyframes slideIn    { from{opacity:0;transform:translateX(30px)}  to{opacity:1;transform:translateX(0)} }
+
+    @media(max-width:768px) {
+      .hero h1 { font-size:1.8rem; }
+      .form-card { position:static; }
+      .search-input { width:100%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar navbar-expand-lg">
+  <div class="container">
+    <a class="navbar-brand" href="/"><i class="bi bi-mortarboard-fill me-2"></i>Cognifyz Academy</a>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+      <span class="api-badge badge-get">GET</span>
+      <span class="api-badge badge-post">POST</span>
+      <span class="api-badge badge-put">PUT</span>
+      <span class="api-badge badge-delete">DELETE</span>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-badge"><i class="bi bi-stars me-1"></i>Task 5 — REST API & Front-End Interaction</div>
+    <h1>🔗 Student Management API</h1>
+    <p>Full CRUD operations · RESTful endpoints · Fetch API · Live data</p>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row g-3">
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">👨‍🎓</div><h3 id="statTotal">0</h3><p>Total Students</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">📡</div><h3>4</h3><p>API Endpoints</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">⚡</div><h3>REST</h3><p>Architecture</p></div></div>
+      <div class="col-6 col-md-3"><div class="stat-card"><div style="font-size:1.8rem">🔄</div><h3 id="statOps">0</h3><p>API Calls Made</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN -->
+<section class="main-section">
+  <div class="container">
+    <div class="row g-4">
+
+      <!-- FORM -->
+      <div class="col-12 col-lg-4">
+        <div class="form-card">
+          <div class="form-card-header">
+            <h5 id="formTitle"><i class="bi bi-person-plus-fill me-2"></i>Add Student</h5>
+            <p id="formSubtitle">Fill in details to register via API</p>
+          </div>
+          <div class="form-card-body">
+            <input type="hidden" id="editId"/>
+            <div class="mb-3">
+              <label class="form-label">Full Name</label>
+              <input type="text" class="form-control" id="fname" placeholder="e.g. Arun Kumar"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" id="femail" placeholder="e.g. arun@email.com"/>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Phone</label>
+              <input type="text" class="form-control" id="fphone" placeholder="10-digit number" maxlength="10"/>
+            </div>
+            <div class="row g-2 mb-3">
+              <div class="col-6">
+                <label class="form-label">Age</label>
+                <input type="number" class="form-control" id="fage" placeholder="15–60" min="15" max="60"/>
+              </div>
+              <div class="col-6">
+                <label class="form-label">Gender</label>
+                <select class="form-select" id="fgender">
+                  <option value="">Select</option>
+                  <option>Male</option><option>Female</option><option>Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Course</label>
+              <select class="form-select" id="fcourse">
+                <option value="">Select course</option>
+                <option>B.Tech - Computer Science</option>
+                <option>B.Tech - Information Technology</option>
+                <option>B.Sc - Data Science</option>
+                <option>MBA - Technology Management</option>
+                <option>MCA</option>
+              </select>
+            </div>
+            <div class="d-flex flex-column gap-2">
+              <button class="btn-add" onclick="submitForm()">
+                <i class="bi bi-send-fill me-1"></i><span id="btnText">Add Student (POST)</span>
+              </button>
+              <button class="btn-cancel" id="cancelBtn" onclick="cancelEdit()" style="display:none">
+                <i class="bi bi-x-circle me-1"></i>Cancel Edit
+              </button>
+            </div>
+
+            <!-- API LOG -->
+            <div class="api-log mt-3">
+              <h6><i class="bi bi-terminal me-1"></i>API LOG</h6>
+              <div id="apiLog"><div class="log-entry" style="color:#666">Waiting for API calls...</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENTS LIST -->
+      <div class="col-12 col-lg-8">
+        <div class="list-card">
+          <div class="list-card-header">
+            <h5><i class="bi bi-people-fill me-2"></i>All Students <span id="countBadge" class="badge" style="background:var(--primary)">0</span></h5>
+            <input type="text" class="search-input" id="searchInput" placeholder="🔍 Search students..." oninput="filterCards()"/>
+          </div>
+          <div class="students-grid" id="studentsGrid">
+            <div class="empty-state col-span-full">
+              <i class="bi bi-arrow-clockwise" style="animation:spin 1s linear infinite"></i>
+              <p>Loading students...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  const API = '/api/students';
+  let allStudents = [];
+  let opCount = 0;
+
+  // ── TOAST ─────────────────────────────────────────────────
+  function toast(msg, type='success') {
+    const icons = { success:'bi-check-circle-fill', error:'bi-x-circle-fill', info:'bi-info-circle-fill' };
+    const div = document.createElement('div');
+    div.className = `toast-msg toast-${type}`;
+    div.innerHTML = `<i class="bi ${icons[type]}"></i>${msg}`;
+    document.getElementById('toastContainer').appendChild(div);
+    setTimeout(() => div.remove(), 3500);
+  }
+
+  // ── API LOG ───────────────────────────────────────────────
+  function log(method, endpoint, status) {
+    opCount++;
+    document.getElementById('statOps').textContent = opCount;
+    const colors = { GET:'log-get', POST:'log-post', PUT:'log-put', DELETE:'log-delete' };
+    const logEl = document.getElementById('apiLog');
+    const entry = document.createElement('div');
+    entry.className = `log-entry ${colors[method] || 'log-error'}`;
+    entry.textContent = `[${new Date().toLocaleTimeString()}] ${method} ${endpoint} → ${status}`;
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+    // Clear placeholder
+    const placeholder = logEl.querySelector('[style*="color:#666"]');
+    if (placeholder) placeholder.remove();
+  }
+
+  // ── FETCH ALL STUDENTS ────────────────────────────────────
+  async function fetchStudents() {
+    try {
+      const res  = await fetch(API);
+      const data = await res.json();
+      log('GET', '/api/students', res.status);
+      allStudents = data.data;
+      renderCards(allStudents);
+      document.getElementById('statTotal').textContent  = data.count;
+      document.getElementById('countBadge').textContent = data.count;
+    } catch(e) {
+      log('GET', '/api/students', 'ERROR');
+      toast('Failed to load students', 'error');
+    }
+  }
+
+  // ── RENDER STUDENT CARDS ──────────────────────────────────
+  function renderCards(list) {
+    const grid = document.getElementById('studentsGrid');
+    if (list.length === 0) {
+      grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><i class="bi bi-inbox"></i><p>No students found.</p></div>`;
+      return;
+    }
+    grid.innerHTML = list.map(s => `
+      <div class="student-card" id="card-${s.id}">
+        <div class="d-flex justify-content-between align-items-start mb-1">
+          <div class="s-name">${s.name}</div>
+          <span class="badge-id">#${String(s.id).padStart(4,'0')}</span>
+        </div>
+        <div class="s-course">${s.course}</div>
+        <div class="s-info"><i class="bi bi-envelope me-1"></i>${s.email}</div>
+        <div class="s-info"><i class="bi bi-phone me-1"></i>${s.phone}</div>
+        <div class="s-info"><i class="bi bi-person me-1"></i>${s.gender} · ${s.age} yrs</div>
+        <div class="s-info"><i class="bi bi-clock me-1"></i>${s.registeredAt}</div>
+        <div class="s-actions">
+          <button class="btn-edit"   onclick="editStudent(${s.id})"><i class="bi bi-pencil me-1"></i>Edit (PUT)</button>
+          <button class="btn-delete" onclick="deleteStudent(${s.id})"><i class="bi bi-trash me-1"></i>Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── SEARCH FILTER ─────────────────────────────────────────
+  function filterCards() {
+    const q = document.getElementById('searchInput').value.toLowerCase();
+    const filtered = allStudents.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.email.toLowerCase().includes(q) ||
+      s.course.toLowerCase().includes(q)
+    );
+    renderCards(filtered);
+  }
+
+  // ── SUBMIT FORM (POST or PUT) ─────────────────────────────
+  async function submitForm() {
+    const editId = document.getElementById('editId').value;
+    const body = {
+      name:   document.getElementById('fname').value.trim(),
+      email:  document.getElementById('femail').value.trim(),
+      phone:  document.getElementById('fphone').value.trim(),
+      age:    document.getElementById('fage').value,
+      gender: document.getElementById('fgender').value,
+      course: document.getElementById('fcourse').value,
+    };
+
+    const isEdit  = editId !== '';
+    const url     = isEdit ? `${API}/${editId}` : API;
+    const method  = isEdit ? 'PUT' : 'POST';
+
+    try {
+      const res  = await fetch(url, { method, headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      const data = await res.json();
+      log(method, isEdit ? `/api/students/${editId}` : '/api/students', res.status);
+
+      if (!data.success) {
+        toast(data.errors ? data.errors.join(' | ') : data.message, 'error');
+        return;
+      }
+      toast(data.message, 'success');
+      clearForm();
+      fetchStudents();
+    } catch(e) {
+      log(method, url, 'ERROR');
+      toast('API request failed', 'error');
+    }
+  }
+
+  // ── EDIT STUDENT ──────────────────────────────────────────
+  async function editStudent(id) {
+    try {
+      const res  = await fetch(`${API}/${id}`);
+      const data = await res.json();
+      log('GET', `/api/students/${id}`, res.status);
+      const s = data.data;
+
+      document.getElementById('editId').value       = s.id;
+      document.getElementById('fname').value        = s.name;
+      document.getElementById('femail').value       = s.email;
+      document.getElementById('fphone').value       = s.phone;
+      document.getElementById('fage').value         = s.age;
+      document.getElementById('fgender').value      = s.gender;
+      document.getElementById('fcourse').value      = s.course;
+      document.getElementById('formTitle').innerHTML    = '<i class="bi bi-pencil-fill me-2"></i>Edit Student';
+      document.getElementById('formSubtitle').textContent = `Editing: ${s.name}`;
+      document.getElementById('btnText').textContent    = 'Update Student (PUT)';
+      document.getElementById('cancelBtn').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      toast(`Editing: ${s.name}`, 'info');
+    } catch(e) {
+      toast('Failed to load student', 'error');
+    }
+  }
+
+  // ── DELETE STUDENT ────────────────────────────────────────
+  async function deleteStudent(id) {
+    if (!confirm('Are you sure you want to delete this student?')) return;
+    try {
+      const res  = await fetch(`${API}/${id}`, { method:'DELETE' });
+      const data = await res.json();
+      log('DELETE', `/api/students/${id}`, res.status);
+      toast(data.message, data.success ? 'success' : 'error');
+      if (data.success) fetchStudents();
+    } catch(e) {
+      log('DELETE', `/api/students/${id}`, 'ERROR');
+      toast('Delete failed', 'error');
+    }
+  }
+
+  // ── CANCEL EDIT ───────────────────────────────────────────
+  function cancelEdit() {
+    clearForm();
+    toast('Edit cancelled', 'info');
+  }
+
+  function clearForm() {
+    document.getElementById('editId').value            = '';
+    document.getElementById('fname').value             = '';
+    document.getElementById('femail').value            = '';
+    document.getElementById('fphone').value            = '';
+    document.getElementById('fage').value              = '';
+    document.getElementById('fgender').value           = '';
+    document.getElementById('fcourse').value           = '';
+    document.getElementById('formTitle').innerHTML     = '<i class="bi bi-person-plus-fill me-2"></i>Add Student';
+    document.getElementById('formSubtitle').textContent = 'Fill in details to register via API';
+    document.getElementById('btnText').textContent    = 'Add Student (POST)';
+    document.getElementById('cancelBtn').style.display = 'none';
+  }
+
+  // ── INIT ──────────────────────────────────────────────────
+  fetchStudents();
+</script>
+</body>
+</html>
