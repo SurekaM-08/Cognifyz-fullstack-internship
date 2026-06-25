@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cognifyz | Weather App — Task 5</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root { --primary:#667eea; --secondary:#764ba2; }
+    body { font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); min-height:100vh; color:white; }
+
+    .navbar { background:rgba(255,255,255,.08) !important; backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,.1); }
+    .navbar-brand { color:white !important; font-weight:700; }
+
+    .hero { text-align:center; padding:50px 0 30px; }
+    .hero h1 { font-size:2.4rem; font-weight:800; }
+    .hero p  { opacity:.8; }
+
+    /* SEARCH BOX */
+    .search-card { background:rgba(255,255,255,.1); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.15); border-radius:18px; padding:28px; margin-bottom:28px; }
+    .search-input { background:rgba(255,255,255,.15); border:2px solid rgba(255,255,255,.2); border-radius:12px; padding:14px 18px; font-size:1rem; color:white; width:100%; outline:none; transition:border-color .3s; }
+    .search-input::placeholder { color:rgba(255,255,255,.5); }
+    .search-input:focus { border-color:rgba(255,255,255,.6); }
+    .btn-search { background:linear-gradient(135deg,var(--primary),var(--secondary)); border:none; border-radius:12px; padding:14px 28px; color:white; font-weight:700; font-size:1rem; transition:opacity .3s; }
+    .btn-search:hover { opacity:.9; color:white; }
+    .quick-btns { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+    .quick-btn { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.2); border-radius:20px; padding:5px 14px; color:white; font-size:.82rem; cursor:pointer; transition:background .2s; }
+    .quick-btn:hover { background:rgba(255,255,255,.25); }
+
+    /* WEATHER CARD */
+    .weather-card { background:rgba(255,255,255,.1); backdrop-filter:blur(12px); border:1px solid rgba(255,255,255,.15); border-radius:18px; padding:30px; margin-bottom:24px; animation:fadeIn .5s ease; text-align:center; }
+    .weather-icon { width:90px; height:90px; filter:drop-shadow(0 4px 10px rgba(0,0,0,.3)); }
+    .temp-big { font-size:4rem; font-weight:800; line-height:1; }
+    .temp-unit { font-size:2rem; opacity:.7; }
+    .weather-desc { font-size:1.1rem; opacity:.85; text-transform:capitalize; margin:6px 0 20px; }
+    .city-name { font-size:1.5rem; font-weight:700; }
+
+    /* DETAIL GRID */
+    .detail-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:20px; }
+    .detail-box { background:rgba(255,255,255,.08); border-radius:12px; padding:14px; text-align:center; }
+    .detail-box .d-label { font-size:.75rem; opacity:.65; margin-bottom:4px; }
+    .detail-box .d-value { font-size:1.1rem; font-weight:700; }
+
+    /* HISTORY */
+    .history-card { background:rgba(255,255,255,.08); border-radius:16px; padding:20px; }
+    .history-card h5 { font-weight:700; margin-bottom:14px; }
+    .history-item { display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(255,255,255,.08); border-radius:10px; margin-bottom:8px; cursor:pointer; transition:background .2s; }
+    .history-item:hover { background:rgba(255,255,255,.18); }
+    .history-item .h-city { font-weight:600; }
+    .history-item .h-time { font-size:.75rem; opacity:.6; }
+
+    /* LOADING */
+    .loading { text-align:center; padding:40px; }
+    .spinner { width:45px; height:45px; border:4px solid rgba(255,255,255,.2); border-top-color:white; border-radius:50%; animation:spin 1s linear infinite; margin:0 auto 14px; }
+
+    /* ERROR */
+    .error-box { background:rgba(239,68,68,.2); border:1px solid rgba(239,68,68,.4); border-radius:12px; padding:18px; text-align:center; animation:fadeIn .4s ease; }
+
+    @keyframes spin   { to{transform:rotate(360deg)} }
+    @keyframes fadeIn { from{opacity:0;transform:translateY(15px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><a class="navbar-brand"><i class="bi bi-cloud-sun me-2"></i>Cognifyz Weather — Task 5</a></div></nav>
+
+<div class="container" style="max-width:800px; padding:0 16px;">
+  <div class="hero">
+    <h1>🌤️ Weather Dashboard</h1>
+    <p>Real-time weather · External API Integration · Server-side history</p>
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-card">
+    <div class="d-flex gap-2">
+      <input class="search-input" id="cityInput" placeholder="Enter city name... e.g. Chennai"
+        onkeydown="if(event.key==='Enter') searchWeather()"/>
+      <button class="btn-search" onclick="searchWeather()"><i class="bi bi-search me-1"></i>Search</button>
+    </div>
+    <div class="quick-btns">
+      <span style="opacity:.6; font-size:.82rem; align-self:center">Quick:</span>
+      <button class="quick-btn" onclick="quickSearch('Chennai')">Chennai</button>
+      <button class="quick-btn" onclick="quickSearch('Mumbai')">Mumbai</button>
+      <button class="quick-btn" onclick="quickSearch('Delhi')">Delhi</button>
+      <button class="quick-btn" onclick="quickSearch('Bangalore')">Bangalore</button>
+      <button class="quick-btn" onclick="quickSearch('Coimbatore')">Coimbatore</button>
+      <button class="quick-btn" onclick="quickSearch('London')">London</button>
+    </div>
+  </div>
+
+  <!-- WEATHER RESULT -->
+  <div id="weatherResult"></div>
+
+  <!-- HISTORY -->
+  <div class="history-card" id="historySection" style="display:none">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5><i class="bi bi-clock-history me-2"></i>Recent Searches</h5>
+      <button onclick="clearHistory()" style="background:rgba(239,68,68,.3);border:none;border-radius:8px;padding:5px 12px;color:white;font-size:.8rem;cursor:pointer">Clear</button>
+    </div>
+    <div id="historyList"></div>
+  </div>
+</div>
+
+<script>
+  async function searchWeather() {
+    const city = document.getElementById('cityInput').value.trim();
+    if (!city) {
+      showError('Please enter a city name!');
+      return;
+    }
+    showLoading();
+    try {
+      const res  = await fetch(`/api/weather/${encodeURIComponent(city)}`);
+      const data = await res.json();
+      if (!data.success) { showError(data.message); return; }
+      showWeather(data.data);
+      loadHistory();
+    } catch(e) {
+      showError('Could not connect to server.');
+    }
+  }
+
+  function quickSearch(city) {
+    document.getElementById('cityInput').value = city;
+    searchWeather();
+  }
+
+  function showLoading() {
+    document.getElementById('weatherResult').innerHTML = `
+      <div class="weather-card"><div class="loading">
+        <div class="spinner"></div><p style="opacity:.7">Fetching weather data...</p>
+      </div></div>`;
+  }
+
+  function showError(msg) {
+    document.getElementById('weatherResult').innerHTML = `
+      <div class="error-box"><i class="bi bi-exclamation-triangle" style="font-size:1.5rem"></i>
+      <p class="mt-2 mb-0">${msg}</p></div>`;
+  }
+
+  function getWeatherEmoji(desc) {
+    if (desc.includes('rain'))  return '🌧️';
+    if (desc.includes('cloud')) return '☁️';
+    if (desc.includes('clear')) return '☀️';
+    if (desc.includes('snow'))  return '❄️';
+    if (desc.includes('storm')) return '⛈️';
+    if (desc.includes('mist') || desc.includes('fog')) return '🌫️';
+    return '🌤️';
+  }
+
+  function showWeather(w) {
+    document.getElementById('weatherResult').innerHTML = `
+      <div class="weather-card">
+        <div class="city-name">${w.city}, ${w.country}</div>
+        <img class="weather-icon" src="https://openweathermap.org/img/wn/${w.icon}@2x.png" alt="${w.description}"/>
+        <div><span class="temp-big">${w.temp}</span><span class="temp-unit">°C</span></div>
+        <div class="weather-desc">${getWeatherEmoji(w.description)} ${w.description}</div>
+        <div class="detail-grid">
+          <div class="detail-box"><div class="d-label">Feels Like</div><div class="d-value">${w.feels_like}°C</div></div>
+          <div class="detail-box"><div class="d-label">Humidity</div><div class="d-value">${w.humidity}%</div></div>
+          <div class="detail-box"><div class="d-label">Wind Speed</div><div class="d-value">${w.wind} m/s</div></div>
+          <div class="detail-box"><div class="d-label">Pressure</div><div class="d-value">${w.pressure} hPa</div></div>
+          <div class="detail-box"><div class="d-label">Sunrise</div><div class="d-value">${w.sunrise}</div></div>
+          <div class="detail-box"><div class="d-label">Sunset</div><div class="d-value">${w.sunset}</div></div>
+        </div>
+      </div>`;
+  }
+
+  async function loadHistory() {
+    const res  = await fetch('/api/history');
+    const data = await res.json();
+    if (data.data.length === 0) { document.getElementById('historySection').style.display='none'; return; }
+    document.getElementById('historySection').style.display = 'block';
+    document.getElementById('historyList').innerHTML = data.data.map(h => `
+      <div class="history-item" onclick="quickSearch('${h.city}')">
+        <span class="h-city"><i class="bi bi-geo-alt me-1"></i>${h.city}, ${h.country}</span>
+        <span class="h-time">${h.searchedAt}</span>
+      </div>`).join('');
+  }
+
+  async function clearHistory() {
+    await fetch('/api/history', { method:'DELETE' });
+    document.getElementById('historySection').style.display = 'none';
+  }
+
+  // Load history on start
+  loadHistory();
+</script>
+</body>
+</html>
