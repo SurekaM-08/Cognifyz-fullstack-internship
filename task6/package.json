@@ -1,0 +1,8 @@
+{
+  "name": "task4-todo-app",
+  "version": "1.0.0",
+  "description": "Cognifyz Task 4 - Todo List with Dynamic DOM",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": { "express": "^4.18.2" }
+}

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cognifyz | Todo App — Task 4</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root { --primary:#667eea; --secondary:#764ba2; }
+    body { font-family:'Segoe UI',sans-serif; background:#f0f2f5; min-height:100vh; }
+
+    .navbar { background:linear-gradient(135deg,var(--primary),var(--secondary)) !important; }
+    .navbar-brand { color:white !important; font-weight:700; font-size:1.3rem; }
+
+    .hero { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; padding:50px 0 70px; text-align:center; position:relative; }
+    .hero::after { content:''; position:absolute; bottom:-2px; left:0; right:0; height:50px; background:#f0f2f5; clip-path:ellipse(55% 100% at 50% 100%); }
+    .hero h1 { font-size:2.3rem; font-weight:800; }
+    .hero p  { opacity:.9; }
+
+    .stats-row { margin-top:-35px; position:relative; z-index:10; }
+    .stat-box { background:white; border-radius:14px; padding:18px; text-align:center; box-shadow:0 8px 25px rgba(0,0,0,.09); transition:transform .3s; }
+    .stat-box:hover { transform:translateY(-4px); }
+    .stat-box h3 { font-size:1.8rem; font-weight:700; color:var(--primary); margin:0; }
+    .stat-box p  { color:#888; font-size:.85rem; margin:0; }
+
+    .main { padding:40px 0 60px; }
+
+    /* ADD FORM */
+    .add-card { background:white; border-radius:16px; box-shadow:0 8px 25px rgba(0,0,0,.08); padding:24px; margin-bottom:24px; }
+    .add-card h5 { font-weight:700; color:#333; margin-bottom:16px; }
+    .add-input { border:2px solid #e8e8e8; border-radius:10px; padding:12px 16px; font-size:.95rem; transition:border-color .3s; outline:none; width:100%; }
+    .add-input:focus { border-color:var(--primary); }
+    .priority-btn { padding:8px 16px; border-radius:8px; border:2px solid #e8e8e8; background:white; font-size:.82rem; font-weight:600; cursor:pointer; transition:all .2s; }
+    .priority-btn.active-high   { border-color:#ef4444; background:#fee2e2; color:#ef4444; }
+    .priority-btn.active-medium { border-color:#f59e0b; background:#fef3c7; color:#f59e0b; }
+    .priority-btn.active-low    { border-color:#22c55e; background:#dcfce7; color:#22c55e; }
+    .btn-add { background:linear-gradient(135deg,var(--primary),var(--secondary)); color:white; border:none; border-radius:10px; padding:12px 28px; font-weight:600; transition:opacity .3s; }
+    .btn-add:hover { opacity:.9; color:white; }
+
+    /* FILTER TABS */
+    .filter-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px; }
+    .filter-tab { padding:7px 18px; border-radius:20px; border:2px solid #e8e8e8; background:white; font-size:.85rem; font-weight:600; cursor:pointer; transition:all .2s; color:#888; }
+    .filter-tab.active { border-color:var(--primary); background:var(--primary); color:white; }
+
+    /* SEARCH */
+    .search-bar { border:2px solid #e8e8e8; border-radius:10px; padding:10px 16px; font-size:.9rem; outline:none; transition:border-color .3s; width:100%; }
+    .search-bar:focus { border-color:var(--primary); }
+
+    /* TODO ITEMS */
+    .todo-list { display:flex; flex-direction:column; gap:10px; }
+    .todo-item { background:white; border-radius:12px; padding:16px 18px; box-shadow:0 3px 12px rgba(0,0,0,.06); display:flex; align-items:center; gap:14px; transition:all .3s; animation:slideIn .3s ease; }
+    .todo-item:hover { box-shadow:0 6px 20px rgba(0,0,0,.1); transform:translateX(4px); }
+    .todo-item.done-item { opacity:.6; }
+    .todo-item.done-item .todo-text { text-decoration:line-through; color:#aaa; }
+
+    .todo-check { width:22px; height:22px; border-radius:6px; border:2px solid #e8e8e8; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; }
+    .todo-check.checked { background:var(--primary); border-color:var(--primary); color:white; }
+
+    .todo-text { flex:1; font-size:.95rem; color:#333; font-weight:500; }
+    .priority-badge { font-size:.72rem; font-weight:700; padding:3px 10px; border-radius:20px; }
+    .p-high   { background:#fee2e2; color:#ef4444; }
+    .p-medium { background:#fef3c7; color:#f59e0b; }
+    .p-low    { background:#dcfce7; color:#22c55e; }
+
+    .todo-actions { display:flex; gap:6px; }
+    .btn-edit-todo   { background:#fef3c7; color:#f59e0b; border:none; border-radius:7px; padding:6px 10px; font-size:.8rem; cursor:pointer; }
+    .btn-delete-todo { background:#fee2e2; color:#ef4444; border:none; border-radius:7px; padding:6px 10px; font-size:.8rem; cursor:pointer; }
+
+    .todo-date { font-size:.73rem; color:#bbb; margin-top:4px; }
+
+    /* EMPTY */
+    .empty { text-align:center; padding:50px; color:#bbb; }
+    .empty i { font-size:2.5rem; display:block; margin-bottom:12px; }
+
+    /* PROGRESS BAR */
+    .progress-card { background:white; border-radius:14px; padding:20px; box-shadow:0 6px 20px rgba(0,0,0,.07); margin-bottom:20px; }
+    .progress-card h6 { font-weight:700; color:#555; margin-bottom:10px; }
+    .progress { height:10px; border-radius:10px; }
+    .progress-bar { background:linear-gradient(135deg,var(--primary),var(--secondary)); border-radius:10px; transition:width .5s ease; }
+
+    /* TOAST */
+    .toast-wrap { position:fixed; top:18px; right:18px; z-index:9999; display:flex; flex-direction:column; gap:8px; }
+    .t-msg { padding:12px 18px; border-radius:10px; color:white; font-size:.86rem; font-weight:600; animation:slideIn .3s ease; min-width:220px; }
+    .t-success { background:linear-gradient(135deg,#11998e,#38ef7d); }
+    .t-error   { background:linear-gradient(135deg,#ef4444,#dc2626); }
+
+    @keyframes slideIn { from{opacity:0;transform:translateY(-15px)} to{opacity:1;transform:translateY(0)} }
+  </style>
+</head>
+<body>
+
+<nav class="navbar"><div class="container"><a class="navbar-brand"><i class="bi bi-check2-square me-2"></i>Cognifyz Todo — Task 4</a></div></nav>
+
+<div class="hero">
+  <div class="container">
+    <h1>📝 Todo List App</h1>
+    <p>Complex Form Validation · Dynamic DOM Manipulation · CRUD via API</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- STATS -->
+  <div class="row g-3 stats-row">
+    <div class="col-6 col-md-3"><div class="stat-box"><h3 id="stTotal">0</h3><p>Total</p></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box"><h3 id="stDone">0</h3><p>Completed</p></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box"><h3 id="stPending">0</h3><p>Pending</p></div></div>
+    <div class="col-6 col-md-3"><div class="stat-box"><h3 id="stHigh">0</h3><p>High Priority</p></div></div>
+  </div>
+
+  <div class="main">
+    <!-- PROGRESS -->
+    <div class="progress-card">
+      <h6><i class="bi bi-bar-chart me-1"></i>Completion Progress — <span id="progressPct">0%</span></h6>
+      <div class="progress"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+    </div>
+
+    <!-- ADD TODO -->
+    <div class="add-card">
+      <h5><i class="bi bi-plus-circle me-2"></i>Add New Todo</h5>
+      <div class="row g-3 align-items-end">
+        <div class="col-12 col-md-6">
+          <input class="add-input" id="todoInput" placeholder="What needs to be done?" maxlength="100"
+            onkeydown="if(event.key==='Enter') addTodo()"/>
+          <div id="inputErr" style="color:#ef4444;font-size:.8rem;margin-top:4px;display:none">
+            ⚠️ Please enter a todo item.
+          </div>
+        </div>
+        <div class="col-12 col-md-4">
+          <div class="d-flex gap-2">
+            <button class="priority-btn active-high"   id="pb-high"   onclick="setPriority('high')">🔴 High</button>
+            <button class="priority-btn"               id="pb-medium" onclick="setPriority('medium')">🟡 Medium</button>
+            <button class="priority-btn"               id="pb-low"    onclick="setPriority('low')">🟢 Low</button>
+          </div>
+        </div>
+        <div class="col-12 col-md-2">
+          <button class="btn-add w-100" onclick="addTodo()"><i class="bi bi-plus-lg me-1"></i>Add</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTERS + SEARCH -->
+    <div class="row g-3 mb-3">
+      <div class="col-12 col-md-7">
+        <div class="filter-tabs">
+          <button class="filter-tab active" onclick="setFilter('all',this)">All</button>
+          <button class="filter-tab" onclick="setFilter('pending',this)">⏳ Pending</button>
+          <button class="filter-tab" onclick="setFilter('done',this)">✅ Completed</button>
+          <button class="filter-tab" onclick="setFilter('high',this)">🔴 High</button>
+          <button class="filter-tab" onclick="setFilter('medium',this)">🟡 Medium</button>
+          <button class="filter-tab" onclick="setFilter('low',this)">🟢 Low</button>
+        </div>
+      </div>
+      <div class="col-12 col-md-5">
+        <input class="search-bar" id="searchBar" placeholder="🔍 Search todos..." oninput="renderTodos()"/>
+      </div>
+    </div>
+
+    <!-- TODO LIST -->
+    <div class="todo-list" id="todoList"></div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+  let todos = [];
+  let priority = 'high';
+  let filter   = 'all';
+
+  // ── TOAST ─────────────────────────────
+  function toast(msg, type='success') {
+    const d = document.createElement('div');
+    d.className = `t-msg t-${type}`;
+    d.textContent = msg;
+    document.getElementById('toastWrap').appendChild(d);
+    setTimeout(() => d.remove(), 2800);
+  }
+
+  // ── PRIORITY SELECTOR ─────────────────
+  function setPriority(p) {
+    priority = p;
+    ['high','medium','low'].forEach(x => {
+      const btn = document.getElementById('pb-'+x);
+      btn.className = 'priority-btn' + (x===p ? ` active-${x}` : '');
+    });
+  }
+
+  // ── FILTER ────────────────────────────
+  function setFilter(f, el) {
+    filter = f;
+    document.querySelectorAll('.filter-tab').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+    renderTodos();
+  }
+
+  // ── FETCH ALL ─────────────────────────
+  async function fetchTodos() {
+    const res  = await fetch('/api/todos');
+    const data = await res.json();
+    todos = data.data;
+    renderTodos();
+    updateStats();
+  }
+
+  // ── RENDER ────────────────────────────
+  function renderTodos() {
+    const q = document.getElementById('searchBar').value.toLowerCase();
+    let list = [...todos];
+
+    if (filter === 'pending')  list = list.filter(t => !t.done);
+    if (filter === 'done')     list = list.filter(t => t.done);
+    if (filter === 'high')     list = list.filter(t => t.priority==='high');
+    if (filter === 'medium')   list = list.filter(t => t.priority==='medium');
+    if (filter === 'low')      list = list.filter(t => t.priority==='low');
+    if (q) list = list.filter(t => t.text.toLowerCase().includes(q));
+
+    const el = document.getElementById('todoList');
+    if (list.length === 0) {
+      el.innerHTML = `<div class="empty"><i class="bi bi-inbox"></i><p>No todos found!</p></div>`;
+      return;
+    }
+    el.innerHTML = list.map(t => `
+      <div class="todo-item ${t.done?'done-item':''}" id="item-${t.id}">
+        <div class="todo-check ${t.done?'checked':''}" onclick="toggleDone(${t.id})">
+          ${t.done ? '<i class="bi bi-check2"></i>' : ''}
+        </div>
+        <div style="flex:1">
+          <div class="todo-text">${t.text}</div>
+          <div class="todo-date"><i class="bi bi-clock me-1"></i>${t.createdAt}</div>
+        </div>
+        <span class="priority-badge p-${t.priority}">${t.priority.toUpperCase()}</span>
+        <div class="todo-actions">
+          <button class="btn-edit-todo"   onclick="editTodo(${t.id})"><i class="bi bi-pencil"></i></button>
+          <button class="btn-delete-todo" onclick="deleteTodo(${t.id})"><i class="bi bi-trash"></i></button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ── STATS ─────────────────────────────
+  function updateStats() {
+    const total   = todos.length;
+    const done    = todos.filter(t => t.done).length;
+    const pending = total - done;
+    const high    = todos.filter(t => t.priority==='high' && !t.done).length;
+    const pct     = total ? Math.round((done/total)*100) : 0;
+
+    document.getElementById('stTotal').textContent   = total;
+    document.getElementById('stDone').textContent    = done;
+    document.getElementById('stPending').textContent = pending;
+    document.getElementById('stHigh').textContent    = high;
+    document.getElementById('progressBar').style.width = pct+'%';
+    document.getElementById('progressPct').textContent = pct+'%';
+  }
+
+  // ── ADD TODO ──────────────────────────
+  async function addTodo() {
+    const input = document.getElementById('todoInput');
+    const errEl = document.getElementById('inputErr');
+
+    // Client-side validation
+    if (!input.value.trim()) {
+      errEl.style.display = 'block';
+      input.style.borderColor = '#ef4444';
+      setTimeout(() => { errEl.style.display='none'; input.style.borderColor='#e8e8e8'; }, 2500);
+      return;
+    }
+
+    const res  = await fetch('/api/todos', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text: input.value, priority })
+    });
+    const data = await res.json();
+    if (data.success) {
+      todos.push(data.data);
+      input.value = '';
+      renderTodos();
+      updateStats();
+      toast('✅ Todo added!');
+    } else {
+      toast(data.message, 'error');
+    }
+  }
+
+  // ── TOGGLE DONE ───────────────────────
+  async function toggleDone(id) {
+    const todo = todos.find(t => t.id === id);
+    const res  = await fetch(`/api/todos/${id}`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ done: !todo.done })
+    });
+    const data = await res.json();
+    if (data.success) {
+      todo.done = data.data.done;
+      renderTodos();
+      updateStats();
+      toast(todo.done ? '✅ Marked complete!' : '↩️ Marked pending!');
+    }
+  }
+
+  // ── EDIT TODO ─────────────────────────
+  async function editTodo(id) {
+    const todo    = todos.find(t => t.id === id);
+    const newText = prompt('Edit todo:', todo.text);
+    if (!newText || newText.trim() === '') return;
+    const res  = await fetch(`/api/todos/${id}`, {
+      method: 'PUT',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ text: newText })
+    });
+    const data = await res.json();
+    if (data.success) {
+      todo.text = data.data.text;
+      renderTodos();
+      toast('✏️ Todo updated!');
+    }
+  }
+
+  // ── DELETE TODO ───────────────────────
+  async function deleteTodo(id) {
+    if (!confirm('Delete this todo?')) return;
+    const res  = await fetch(`/api/todos/${id}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      todos = todos.filter(t => t.id !== id);
+      renderTodos();
+      updateStats();
+      toast('🗑️ Todo deleted!');
+    }
+  }
+
+  // ── INIT ──────────────────────────────
+  fetchTodos();
+</script>
+</body>
+</html>
