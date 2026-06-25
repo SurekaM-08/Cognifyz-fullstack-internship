@@ -1,0 +1,14 @@
+{
+  "name": "task6-auth-app",
+  "version": "1.0.0",
+  "description": "Cognifyz Task 6 - Login & Register with MongoDB",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.6.3",
+    "bcryptjs": "^2.4.3",
+    "express-session": "^1.17.3",
+    "ejs": "^3.1.9"
+  }
+}
